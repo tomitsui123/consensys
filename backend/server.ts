@@ -1,20 +1,22 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 import mongoose from 'mongoose'
-import bcrypt from 'bcryptjs'
-import JsonWebToken from 'jsonwebtoken'
+
+const UserRouter = require('./user/routes')
 
 const PORT = 8080
-const { DB_USERNAME, DB_PASSWORD, DB_PORT } = process.env
+const { DB_HOST, DB_USERNAME, DB_PASSWORD, DB_PORT, DB_DATABASE } = process.env
 const app = express()
 
-mongoose.connect(`mongodb://${DB_USERNAME}:${DB_PASSWORD}@db:${DB_PORT}`).then(() => {
+mongoose.connect(`mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/booking_system?authSource=admin`).then(() => {
   console.log('DB connection successful')
 }).catch((err) => {
   console.log('Error occurs: ', err)
 })
 
 app.use(bodyParser.json())
+
+app.use('/api', UserRouter)
 
 app.get('/', (req, res) => {
   res.send('Welcome!')
