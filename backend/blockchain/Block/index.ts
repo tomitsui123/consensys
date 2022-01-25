@@ -8,7 +8,7 @@ export interface IBlock {
   data: any
 }
 
-class Block {
+export class Block {
   timestamp: string
   lastHash: string
   hash: string

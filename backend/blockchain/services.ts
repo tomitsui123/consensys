@@ -1,9 +1,16 @@
+import { Block } from './Block'
+
 const Blockchain = require('./Blockchain')
 const HttpResponse = require('../helpers/HttpResponse')
 
+const blockchain = new Blockchain()
 const getBlock = async () => {
-  const blockchain = new Blockchain()
   return new HttpResponse(blockchain.chain)
 }
 
-export { getBlock }
+const mineBlock = async (data: any) => {
+  const block: typeof Block = blockchain.addBlock(data)
+  console.log(`New block added: ${block.toString()}`)
+}
+
+export { getBlock, mineBlock }

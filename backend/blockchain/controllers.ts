@@ -8,4 +8,9 @@ const getBlocks = async (req: Request, res: Response) => {
     .json(response)
 }
 
-export { getBlocks }
+const mineBlock = async(req: Request, res: Response) => {
+  await blockchainService.mineBlock(req.body)
+  return res.redirect('/blockchain/blocks')
+}
+
+export { getBlocks, mineBlock }
