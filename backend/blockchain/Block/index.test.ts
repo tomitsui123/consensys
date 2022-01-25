@@ -4,7 +4,7 @@ import {
   beforeEach,
   it,
 } from '@jest/globals'
-const Block = require('./Block')
+const Block = require('./index')
 
 describe('Block', () => {
   let data, lastBlock, block
