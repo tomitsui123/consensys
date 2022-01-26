@@ -1,23 +1,39 @@
-version: "3.9"
+version: '3.9'
 services:
-  backend:
-    build: 
+  backend-pepsi:
+    build:
       context: ./backend
     ports:
-      - 7000:8080
-    environment:
-      DB_USERNAME: root
-      DB_PASSWORD: consensys
-      DB_PORT: 27017
-      DB_DATABASE: booking_system
-      DB_HOST: db
-  db:
-    image: mongo:5.0.5
-    restart: always
+      - 18080:8080
+      - 5001
+  backend-cola:
+    build:
+      context: ./backend
+    depends_on:
+      - backend-pepsi
     ports:
-      - 70:27017
+      - 28081:8081
+      - 5002
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: consensys
-    volumes:
-      - .:/data/db
+      HTTP_PORT: 8081
+      P2P_PORT: 5002
+      PEERS: ws://backend-pepsi:5001
+  backend-consensys:
+    build:
+      context: ./backend
+    depends_on:
+      - backend-pepsi
+      - backend-cola
+    environment:
+      HTTP_PORT: 8082
+      P2P_PORT: 5003
+      PEERS: ws://backend-pepsi:5001,ws://backend-cola:5002
+    ports:
+      - 18082:8082
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - 13000:3000
+    links:
+      - 'backend-consensys:be'
