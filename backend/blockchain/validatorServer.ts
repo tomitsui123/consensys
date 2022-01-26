@@ -1,7 +1,5 @@
 import { WebSocket } from 'ws'
 import { Blockchain } from './Blockchain'
-import TransactionPool from './TransactionPool'
-import Transaction from './Wallet/Transaction'
 
 const P2P_PORT = process.env.P2P_PORT || 5001
 
@@ -18,16 +16,11 @@ const MESSAGE_TYPE = {
 export class P2pserver {
   blockchain: Blockchain
   sockets: WebSocket[]
-  transactionPool: TransactionPool
-  isMining = false
   constructor(
     blockchain: Blockchain,
-    transactionPool: TransactionPool
   ) {
     this.blockchain = blockchain
     this.sockets = []
-    this.transactionPool = transactionPool
-
   }
 
   listen() {
@@ -72,14 +65,6 @@ export class P2pserver {
         case MESSAGE_TYPE.chain:
           this.blockchain.replaceChain(data.chain)
           break
-        case MESSAGE_TYPE.transaction:
-          this.transactionPool.updateOrAddTransaction(
-            data.transaction
-          )
-          break
-        case MESSAGE_TYPE.clear_transactions:
-          this.transactionPool.clear()
-          break
       }
     })
   }
@@ -99,45 +84,8 @@ export class P2pserver {
     })
   }
 
-  broadcastTransaction(transaction: Transaction) {
-    this.sockets.forEach((socket) => {
-      this.sendTransaction(socket, transaction)
-    })
-  }
-
-  sendTransaction(
-    socket: WebSocket,
-    transaction: Transaction
-  ) {
-    socket.send(
-      JSON.stringify({
-        type: MESSAGE_TYPE.transaction,
-        transaction: transaction,
-      })
-    )
-  }
-
-  broadcastClearTransactions() {
-    this.sockets.forEach((socket) => {
-      socket.send(
-        JSON.stringify({
-          type: MESSAGE_TYPE.clear_transactions,
-        })
-      )
-    })
-  }
-
-  startMining() {
-    this.isMining = true
-  }
-
-  mine() {
-    const validTransactions =
-      this.transactionPool.validTransactions()
-    this.blockchain.addBlock(validTransactions)
+  mint() {
+    this.blockchain.addBlock('')
     this.syncChain()
-    this.transactionPool.clear()
-    this.broadcastClearTransactions()
-    this.isMining = false
   }
 }
