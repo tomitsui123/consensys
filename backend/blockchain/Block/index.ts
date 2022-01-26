@@ -1,50 +1,115 @@
+import { DIFFICULTY, MINE_RATE } from '../config'
+
 const SHA256 = require('crypto-js/sha256')
 const dayjs = require('dayjs')
 
-export interface IBlock {
-  timestamp: string
-  lastHash: string
-  hash: string
-  data: any
-}
-
 export class Block {
-  timestamp: string
+  timestamp: number
   lastHash: string
   hash: string
   data: any
-  constructor(timestamp: string, lastHash: string, hash: string, data: any) {
+  nonce: number
+  difficulty: number
+  constructor(
+    timestamp: number,
+    lastHash: string,
+    hash: string,
+    data: any,
+    nonce: number,
+    difficulty: number
+  ) {
     this.timestamp = timestamp
     this.lastHash = lastHash
     this.hash = hash
     this.data = data
+    this.difficulty = difficulty
+    this.nonce = nonce
   }
 
   static genesis(): Block {
     return new this(
-      'Genesis time',
+      dayjs().unix(),
       '----',
       'genesis-hash',
-      []
+      [],
+      0,
+      DIFFICULTY
     )
   }
 
-  static blockHash(block: IBlock): string {
-    const { timestamp, lastHash, data } = block
-    return Block.hash(timestamp, lastHash, data)
+  static blockHash(block: Block): string {
+    const { timestamp, lastHash, data, difficulty, nonce } =
+      block
+    return Block.hash(
+      timestamp,
+      lastHash,
+      data,
+      nonce,
+      difficulty
+    )
   }
 
-  static hash(timestamp: string, lastHash: string, data: any): string {
+  static hash(
+    timestamp: number,
+    lastHash: string,
+    data: any,
+    nonce: number,
+    difficulty: number
+  ): string {
     return SHA256(
-      `${timestamp}${lastHash}${data}`
+      `${timestamp}${lastHash}${data}${nonce}${difficulty}`
     ).toString()
   }
 
-  static mineBlock(lastBlock: IBlock, data: any): Block {
-    let timestamp = dayjs().unix()
+  static mineBlock(lastBlock: Block, data: any) {
+    let hash
+    let timestamp: number
     const lastHash = lastBlock.hash
-    let hash = this.hash(timestamp, lastHash, data)
-    return new this(timestamp, lastHash, hash, data)
+
+    let { difficulty } = lastBlock
+
+    let nonce = 0
+    //generate the hash of the block
+    do {
+      nonce++
+      timestamp = dayjs().unix()
+      difficulty = Block.adjustDifficulty(
+        lastBlock,
+        timestamp
+      )
+      hash = Block.hash(
+        timestamp,
+        lastHash,
+        data,
+        nonce,
+        difficulty
+      )
+      // checking if we have the required no of leading number of zeros
+    } while (
+      hash.substring(0, difficulty) !==
+      '0'.repeat(difficulty)
+    )
+
+    return new this(
+      timestamp,
+      lastHash,
+      hash,
+      data,
+      nonce,
+      difficulty
+    )
+  }
+
+  static adjustDifficulty(
+    lastBlock: Block,
+    currentTime: number
+  ): number {
+    let { difficulty } = lastBlock
+    difficulty =
+      lastBlock.timestamp + MINE_RATE > currentTime
+        ? difficulty + 1
+        : difficulty - 1
+    return difficulty
   }
 
   toString(): string {
@@ -55,5 +120,3 @@ export class Block {
     Data      : ${this.data}`
   }
 }
-
-module.exports = Block

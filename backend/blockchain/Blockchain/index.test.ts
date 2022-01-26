@@ -4,8 +4,8 @@ import {
   beforeEach,
   it,
 } from '@jest/globals'
-const Blockchain = require('./index')
-const Block = require('../Block')
+import { Blockchain } from '../Blockchain'
+import { Block } from '../Block'
 describe('Blockchain', () => {
   let blockchain, blockchain2
 

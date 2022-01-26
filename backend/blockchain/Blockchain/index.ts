@@ -1,18 +1,11 @@
-import { IBlock } from '../Block'
-
-const Block = require('../Block')
-
-export interface IBlockchain {
-  chain: IBlock[]
-}
-
-class Blockchain {
-  chain: IBlock[]
+import { Block } from '../Block'
+export class Blockchain {
+  chain: Block[]
   constructor() {
     this.chain = [Block.genesis()]
   }
 
-  addBlock(data: any): IBlock {
+  addBlock(data: any): Block {
     const block = Block.mineBlock(
       this.chain[this.chain.length - 1],
       data
@@ -20,7 +13,7 @@ class Blockchain {
     this.chain.push(block)
     return block
   }
-  isValidChain(chain: IBlock[]): boolean {
+  isValidChain(chain: Block[]): boolean {
     if (
       JSON.stringify(chain[0]) !==
       JSON.stringify(Block.genesis())
@@ -39,7 +32,7 @@ class Blockchain {
 
     return true
   }
-  replaceChain(newChain: IBlock[]): void {
+  replaceChain(newChain: Block[]): void {
     if (newChain.length <= this.chain.length) {
       console.log(
         'Recieved chain is not longer than the current chain'
@@ -56,5 +49,3 @@ class Blockchain {
     this.chain = newChain
   }
 }
-
-module.exports = Blockchain

@@ -3,9 +3,7 @@ import bcrypt from 'bcryptjs'
 import dayjs from 'dayjs'
 
 import User from './model'
-
-const HttpResponse = require('../helpers/HttpResponse')
-
+import HttpResponse from '../helpers/HttpResponse'
 
 const { SECRET } = process.env
 

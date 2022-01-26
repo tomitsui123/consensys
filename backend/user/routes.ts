@@ -7,4 +7,4 @@ router.post('/login', loginController.login)
 router.get('/logout', loginController.logout)
 router.post('/register', loginController.register)
 
-module.exports = router
+export default router
