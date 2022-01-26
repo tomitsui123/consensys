@@ -12,7 +12,7 @@ describe('Block', () => {
   beforeEach(() => {
     data = 'bar'
     lastBlock = Block.genesis()
-    block = Block.mineBlock(lastBlock, data)
+    block = Block.mintBlock(lastBlock, data)
   })
 
   it('sets the `data` to match the input', () => {

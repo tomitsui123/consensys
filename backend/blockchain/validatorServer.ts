@@ -1,4 +1,4 @@
-import { WebSocket } from 'ws'
+import { WebSocket, WebSocketServer } from 'ws'
 import { Blockchain } from './Blockchain'
 
 const P2P_PORT = process.env.P2P_PORT || 5001
@@ -9,31 +9,29 @@ const peers = process.env.PEERS
 
 const MESSAGE_TYPE = {
   chain: 'CHAIN',
-  transaction: 'TRANSACTION',
-  clear_transactions: 'CLEAR_TRANSACTIONS',
+  mint: 'MINT',
 }
 
 export class P2pserver {
   blockchain: Blockchain
   sockets: WebSocket[]
-  constructor(
-    blockchain: Blockchain,
-  ) {
+  server: WebSocketServer
+  constructor(blockchain: Blockchain) {
     this.blockchain = blockchain
     this.sockets = []
-  }
-
-  listen() {
-    const server = new WebSocket.Server({
+    this.server = new WebSocket.Server({
       port:
         typeof P2P_PORT === 'string'
           ? parseInt(P2P_PORT)
           : P2P_PORT,
     })
+  }
 
-    server.on('connection', (socket) =>
+  listen() {
+    this.server.on('connection', (socket) => {
+      console.log('hihihi')
       this.connectSocket(socket)
-    )
+    })
 
     this.connectToPeers()
 
@@ -59,11 +57,15 @@ export class P2pserver {
   messageHandler(socket: WebSocket) {
     socket.on('message', (message: string) => {
       const data = JSON.parse(message)
-      console.log('data ', data)
+      // console.log('data ', data)
 
       switch (data.type) {
         case MESSAGE_TYPE.chain:
           this.blockchain.replaceChain(data.chain)
+          break
+        case MESSAGE_TYPE.mint:
+          this.mint(data)
+          console.log(`I handle the message(PORT:${P2P_PORT})`)
           break
       }
     })
@@ -80,12 +82,28 @@ export class P2pserver {
 
   syncChain() {
     this.sockets.forEach((socket) => {
+      console.log(socket.url)
       this.sendChain(socket)
     })
   }
 
-  mint() {
-    this.blockchain.addBlock('')
+  mint(data: any) {
+    this.blockchain.addBlock(data)
     this.syncChain()
+  }
+
+  chooseValidator(data: any) {
+    this.sockets.forEach((socket) =>
+      console.log(socket.url)
+    )
+    const randomSocket =
+      this.sockets[
+        Math.floor(Math.random() * this.sockets.length)
+      ]
+    console.log(randomSocket.url)
+    randomSocket.send(JSON.stringify({
+      type: MESSAGE_TYPE.mint,
+      data
+    }))
   }
 }
