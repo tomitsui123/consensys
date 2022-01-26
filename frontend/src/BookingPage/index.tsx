@@ -1,6 +1,7 @@
 import { Row, Col, message } from 'antd'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
+import { useAuth } from '../utils/AuthProvider'
 import BookButton from './BookButton'
 import './index.css'
 
@@ -14,13 +15,14 @@ interface AvailableData {
 export default function BookingPage() {
   const [availableData, setAvailableData] =
     useState<AvailableData[]>()
+    const auth = useAuth()
   useEffect(() => {
     getData()
   }, [])
   const getData = async () => {
     try {
       const { data } = await axios.get(
-        '/blockchain/available'
+        `/blockchain/available/${auth.user}`
       )
       setAvailableData(data.data)
     } catch (e) {

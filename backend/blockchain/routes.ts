@@ -4,7 +4,7 @@ import * as blockchainController from './controllers'
 const router = express.Router()
 
 router.get('/blocks', blockchainController.getBlocks)
-router.get('/available', blockchainController.getAvailableTimeslot)
+router.get('/available/:username', blockchainController.getAvailableTimeslot)
 router.post('/transact', blockchainController.createTransaction)
 
 export default router
