@@ -30,7 +30,14 @@ const createTransaction = async (
   res.redirect('/blockchain/blocks')
 }
 
+const getAvailableTimeslot = async (req: Request, res: Response) => {
+  console.log('hihihi')
+  const response = await blockchainService.getAvailableTimeslot()
+  return res.status(response.statusCode).json(response)
+}
+
 export {
   getBlocks,
   createTransaction,
+  getAvailableTimeslot
 }

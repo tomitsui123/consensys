@@ -31,4 +31,25 @@ const createTransaction = async (
   })
 }
 
-export { getBlock, mintBlock, createTransaction }
+const getAvailableTimeslot = async () => {
+  const data = [
+    {
+      isSelect: true,
+      roomCode: 'P1',
+      time: '1',
+    },
+    {
+      isOccupy: true,
+      roomCode: 'P4',
+      time: '5',
+    },
+  ]
+  return new HttpResponse([])
+}
+
+export {
+  getBlock,
+  mintBlock,
+  createTransaction,
+  getAvailableTimeslot,
+}

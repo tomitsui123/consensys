@@ -1,8 +1,33 @@
-import { Row, Col } from 'antd'
+import { Row, Col, message } from 'antd'
+import axios from 'axios'
+import { useEffect, useState } from 'react'
 import BookButton from './BookButton'
+import './index.css'
+
+interface AvailableData {
+  isSelect?: boolean
+  isOccupy?: boolean
+  roomCode: string
+  time: string
+}
 
 export default function BookingPage() {
-  const tableName = [
+  const [availableData, setAvailableData] =
+    useState<AvailableData[]>()
+  useEffect(() => {
+    getData()
+  }, [])
+  const getData = async () => {
+    try {
+      const { data } = await axios.get(
+        '/blockchain/available'
+      )
+      setAvailableData(data.data)
+    } catch (e) {
+      message.error('Please refresh the page.')
+    }
+  }
+  const roomCodeList = [
     'P1',
     'P2',
     'P3',
@@ -29,20 +54,49 @@ export default function BookingPage() {
       <Col span={24}>
         <table>
           <tr>
-            <td />
+            <td style={{ width: 60 }} />
             {Array.apply(null, Array(24)).map((_, idx) => (
-              <td style={{ textAlign: 'center' }}>{idx + 1}:00</td>
+              <td style={{ textAlign: 'center' }}>
+                {idx + 1}:00
+              </td>
             ))}
           </tr>
-          {tableName.map((tableName: string) => (
+          {roomCodeList.map((roomCode: string) => (
             <tr>
-              <td>{tableName}</td>
+              <td
+                className={
+                  roomCode.indexOf('P') > -1
+                    ? 'pepsi'
+                    : 'coca'
+                }
+              >
+                <strong>{roomCode}</strong>
+              </td>
               {Array.apply(null, Array(24)).map(
-                (_, idx) => (
-                  <td>
-                    <BookButton />
-                  </td>
-                )
+                (_, idx) => {
+                  const filteredData = availableData?.find(
+                    (d) =>
+                      d.roomCode === roomCode &&
+                      d.time === idx.toString() &&
+                      (d.isSelect || d.isOccupy)
+                  )
+                  const isBooked =
+                    typeof filteredData !== 'undefined'
+                  return (
+                    <td>
+                      <BookButton
+                        getData={getData}
+                        isSelected={
+                          filteredData &&
+                          filteredData.isSelect
+                        }
+                        isBooked={isBooked}
+                        roomCode={roomCode}
+                        time={idx.toString()}
+                      />
+                    </td>
+                  )
+                }
               )}
             </tr>
           ))}

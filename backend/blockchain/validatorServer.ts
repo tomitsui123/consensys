@@ -64,7 +64,7 @@ export class P2pserver {
           this.blockchain.replaceChain(data.chain)
           break
         case MESSAGE_TYPE.mint:
-          this.mint(data)
+          this.mint(data.data)
           console.log(`I handle the message(PORT:${P2P_PORT})`)
           break
       }
