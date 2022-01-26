@@ -18,7 +18,7 @@ interface CustomState {
   from: { pathname: string }
 }
 
-const LoginPage = () => {
+export default function LoginPage() {
   const auth = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -91,5 +91,3 @@ const LoginPage = () => {
     </Row>
   )
 }
-
-export default LoginPage

@@ -38,7 +38,7 @@ export default function AuthProvider({
     return
   }
 
-  let signout = (callback: VoidFunction) => {
+  let signout = () => {
     const isLogout = authProvider.signout()
     if (isLogout) {
       setUser(null)

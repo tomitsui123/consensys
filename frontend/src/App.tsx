@@ -13,6 +13,7 @@ import {
   useLocation,
 } from 'react-router-dom'
 import './App.css'
+import BookingPage from './BookingPage'
 import LoginPage from './LoginPage'
 import AuthProvider, { useAuth } from './utils/AuthProvider'
 
@@ -24,11 +25,11 @@ function RequireAuth({
   let auth = useAuth()
   let location = useLocation()
 
-  notification.error({
-    key: '1',
-    message: 'Please login first!',
-  })
   if (!auth.user) {
+    notification.error({
+      key: '1',
+      message: 'Please login first!',
+    })
     return (
       <Navigate
         to='/login'
@@ -85,7 +86,7 @@ function App() {
                   path='/'
                   element={
                     <RequireAuth>
-                      <div>booking</div>
+                      <BookingPage />
                     </RequireAuth>
                   }
                 />
@@ -97,7 +98,7 @@ function App() {
                   path='/booking'
                   element={
                     <RequireAuth>
-                      <div>booking</div>
+                      <BookingPage />
                     </RequireAuth>
                   }
                 />
