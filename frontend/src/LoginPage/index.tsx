@@ -63,7 +63,6 @@ export default function LoginPage() {
             <Button type='primary' htmlType='submit'>
               Submit
             </Button>
-            <Button type='default'>Signup</Button>
           </Form.Item>
         </Form>
       </Col>

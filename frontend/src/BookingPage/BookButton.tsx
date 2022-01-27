@@ -18,9 +18,6 @@ export default function BookButton({
     React.SetStateAction<AvailableData[] | undefined>
   >
 }) {
-  if (typeof isSelected !== 'undefined') {
-    console.log(isSelected, roomCode, time)
-  }
   const auth = useAuth()
 
   const cancelReservation = async () => {
