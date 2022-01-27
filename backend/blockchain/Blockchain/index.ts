@@ -17,22 +17,16 @@ export class Blockchain {
   }
 
   isValidBlock(block: Block): boolean {
-    console.log(block)
-    const selectedBlockList = this.chain.filter(
-      (b: Block) => {
-        // console.log(b, block)
-        return (
-          b.data.roomCode === block.data.roomCode &&
-          b.data.time === block.data.time &&
-          b.data.user === block.data.user
-        )
-      }
-    )
-    const latestBlock = selectedBlockList.pop()
-    if (
-      !latestBlock ||
-      latestBlock.data.action === 'Delete'
-    ) {
+    console.log('------block', block)
+    const userBlockList = this.chain.filter((b: Block) => {
+      return b.data.user === block.data.user
+    })
+    const latestBlock = userBlockList.pop()
+    console.log('latestBlock', latestBlock)
+    if (!latestBlock) {
+      return block.data.action === 'Add'
+    }
+    if (latestBlock.data.action === 'Delete') {
       return block.data.action === 'Add'
     } else if (latestBlock.data.action === 'Add') {
       return block.data.action === 'Delete'
@@ -48,7 +42,7 @@ export class Blockchain {
       return false
     }
 
-    for (let i = 1; i < chain.length; i++) {
+    for (var i = 1; i < chain.length; i++) {
       const block = chain[i]
       const lastBlock = chain[i - 1]
       if (

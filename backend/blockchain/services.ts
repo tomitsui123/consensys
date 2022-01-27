@@ -34,67 +34,48 @@ const createTransaction = async (
 }
 
 const getAvailableTimeslot = async (user: string) => {
-  let isSelectedTimeslot = blockchain.chain
-    .filter(
-      (e) =>
-        e.data.user === user && e.data.action === 'Add'
-    )
+  let userLastBlock = blockchain.chain
+    .filter((e) => e.data.user === user)
     .pop()
-  const isSelectedByOthers = blockchain.chain.filter(
-    (e) =>
-      e.data.user !== user && e.data.action === 'Add'
+  const isSelectedBlock =
+    userLastBlock && userLastBlock.data.action === 'Add'
+      ? {
+          isSelect: true,
+          roomCode: userLastBlock.data.roomCode,
+          time: userLastBlock.data.time,
+        }
+      : undefined
+  console.log('isSelectedBlock', isSelectedBlock)
+
+  const userList = blockchain.chain.reduce(
+    (acc: string[], cur) => {
+      if (!cur) return acc
+      if (cur.data.user && cur.data.user !== user) {
+        acc.push(cur.data.user)
+      }
+      return acc
+    },
+    []
   )
-  let isSelectedData
-  let isSelectedByOthersData: {
-    isSelect?: boolean
-    isOccupy?: boolean
-    roomCode: string
-    time: string
-  }[] = []
-
-  if (isSelectedByOthers.length > 0) {
-    isSelectedByOthersData = isSelectedByOthers.reduce(
-      (
-        acc: {
-          isOccupy: boolean
-          roomCode: string
-          time: string
-        }[],
-        cur
-      ) => {
-        acc.push({
-          isOccupy: true,
-          roomCode: cur.data.roomCode,
-          time: cur.data.time,
-        })
-        return acc
-      },
-      []
-    )
-  }
-  if (isSelectedTimeslot) {
-    isSelectedData = {
-      isSelect: true,
-      roomCode: isSelectedTimeslot.data.roomCode,
-      time: isSelectedTimeslot.data.time,
+  console.log('selectedUserList', userList)
+  const isOccupyList = []
+  for (var i = 0; i < userList.length; i++) {
+    let lastBlock = blockchain.chain
+      .filter((e) => e.data.user === userList[i])
+      .pop()
+    if (lastBlock && lastBlock.data.action === 'Add') {
+      isOccupyList.push({
+        isOccupy: true,
+        roomCode: lastBlock.data.roomCode,
+        time: lastBlock.data.time,
+      })
     }
-    isSelectedByOthersData.push(isSelectedData)
   }
-  console.log(isSelectedData, isSelectedByOthersData)
-
-  const data = [
-    {
-      isSelect: true,
-      roomCode: 'P1',
-      time: '1',
-    },
-    {
-      isOccupy: true,
-      roomCode: 'P4',
-      time: '5',
-    },
-  ]
-  return new HttpResponse(isSelectedByOthersData)
+  console.log('isOccupyList', isOccupyList)
+  if (isSelectedBlock) {
+    isOccupyList.push(isSelectedBlock)
+  }
+  return new HttpResponse(isOccupyList)
 }
 
 export {
