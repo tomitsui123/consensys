@@ -44,8 +44,9 @@ function RequireAuth({
 
 function NavBar({ pages }: { pages: string[] }) {
   let auth = useAuth()
-  console.log()
-  pages = auth.user ? pages.filter(e => e !== 'login') : pages
+  pages = auth.user
+    ? pages.filter((e) => e !== 'login')
+    : pages
   return (
     <div>
       <Menu
@@ -59,6 +60,7 @@ function NavBar({ pages }: { pages: string[] }) {
           </Menu.Item>
         ))}
       </Menu>
+      {auth.user && <div>Welcome, {auth.user}</div>}
       <Outlet />
     </div>
   )

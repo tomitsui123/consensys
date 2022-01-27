@@ -5,7 +5,7 @@ import { useAuth } from '../utils/AuthProvider'
 import BookButton from './BookButton'
 import './index.css'
 
-interface AvailableData {
+export interface AvailableData {
   isSelect?: boolean
   isOccupy?: boolean
   roomCode: string
@@ -79,7 +79,7 @@ export default function BookingPage() {
                   const filteredData = availableData?.find(
                     (d) =>
                       d.roomCode === roomCode &&
-                      d.time === idx.toString() &&
+                      d.time === (idx + 1).toString() &&
                       (d.isSelect || d.isOccupy)
                   )
                   const isBooked =
@@ -87,14 +87,14 @@ export default function BookingPage() {
                   return (
                     <td>
                       <BookButton
-                        getData={getData}
+                        setData={setAvailableData}
                         isSelected={
                           filteredData &&
                           filteredData.isSelect
                         }
                         isBooked={isBooked}
                         roomCode={roomCode}
-                        time={idx.toString()}
+                        time={(idx + 1).toString()}
                       />
                     </td>
                   )

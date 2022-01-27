@@ -59,19 +59,6 @@ export default function LoginPage() {
             <Input />
           </Form.Item>
 
-          <Form.Item
-            label='Password'
-            name='password'
-            rules={[
-              {
-                required: true,
-                message: 'Please input your password!',
-              },
-            ]}
-          >
-            <Input.Password />
-          </Form.Item>
-
           <Form.Item>
             <Button type='primary' htmlType='submit'>
               Submit

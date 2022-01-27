@@ -1,6 +1,6 @@
-import { Button, Modal, notification } from 'antd'
+import { Button } from 'antd'
 import axios from 'axios'
-import { useState } from 'react'
+import { AvailableData } from '.'
 import { useAuth } from '../utils/AuthProvider'
 
 export default function BookButton({
@@ -8,70 +8,60 @@ export default function BookButton({
   time,
   isBooked,
   isSelected,
-  getData,
+  setData,
 }: {
   roomCode: string
   time: string
   isBooked: boolean
   isSelected: boolean | undefined
-  getData: () => Promise<void>
+  setData: React.Dispatch<
+    React.SetStateAction<AvailableData[] | undefined>
+  >
 }) {
   if (typeof isSelected !== 'undefined') {
     console.log(isSelected, roomCode, time)
   }
-  const [visible, setVisible] = useState(false)
-  const [confirmLoading, setConfirmLoading] =
-    useState(false)
   const auth = useAuth()
 
   const cancelReservation = async () => {
-    await axios.post('/blockchain/transact', {
-      action: 'Delete',
-      username: auth.user,
-      roomCode,
-      time,
-    })
-  }
-
-  const createReservation = () => {
-    axios.post('/blockchain/transact', {
-      action: 'Add',
-      username: auth.user,
-      roomCode,
-      time,
-    })
-  }
-
-  const onClick = () => {
-    if ((isBooked && isSelected) || !isBooked) {
-      setVisible(true)
+    const data = await axios.post<AvailableData[]>(
+      '/blockchain/transact',
+      {
+        action: 'Delete',
+        user: auth.user,
+        roomCode,
+        time,
+      }
+    )
+    if (data) {
+      setData(data.data)
     }
   }
-  const handleCancel = () => {
-    setVisible(false)
+
+  const createReservation = async () => {
+    const { data } = await axios.post(
+      '/blockchain/transact',
+      {
+        action: 'Add',
+        user: auth.user,
+        roomCode,
+        time,
+      }
+    )
+    if (data) {
+      setData(data.data)
+    }
   }
-  const handleOk = async () => {
-    setConfirmLoading(true)
+
+  const onClick = async () => {
+    if (isBooked && !isSelected) return
     const isCancel = isBooked && isSelected
     const isCreate = !isSelected && !isBooked
-    console.log(isBooked, isSelected)
     if (isCancel) {
       await cancelReservation()
-      notification.info({
-        key: 'editBlockchain',
-        message: 'Reservation has been canceled.',
-      })
     } else if (isCreate) {
       await createReservation()
-      notification.info({
-        key: 'editBlockchain',
-        message:
-          'Reservation has been added to blockchain!',
-      })
     }
-    await getData()
-    setConfirmLoading(false)
-    setVisible(false)
   }
   return (
     <>
@@ -87,18 +77,10 @@ export default function BookButton({
       >
         {isBooked
           ? !isSelected
-            ? 'unavailable'
+            ? 'N/A'
             : 'Cancel'
           : 'book'}
       </Button>
-      <Modal
-        visible={visible}
-        onOk={handleOk}
-        confirmLoading={confirmLoading}
-        onCancel={handleCancel}
-      >
-        <p>Do you want to book the session()?</p>
-      </Modal>
     </>
   )
 }

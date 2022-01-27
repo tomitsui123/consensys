@@ -29,7 +29,6 @@ export class P2pserver {
 
   listen() {
     this.server.on('connection', (socket) => {
-      console.log('hihihi')
       this.connectSocket(socket)
     })
 
@@ -82,7 +81,6 @@ export class P2pserver {
 
   syncChain() {
     this.sockets.forEach((socket) => {
-      console.log(socket.url)
       this.sendChain(socket)
     })
   }
@@ -93,14 +91,10 @@ export class P2pserver {
   }
 
   chooseValidator(data: any) {
-    this.sockets.forEach((socket) =>
-      console.log(socket.url)
-    )
     const randomSocket =
       this.sockets[
         Math.floor(Math.random() * this.sockets.length)
       ]
-    console.log(randomSocket.url)
     randomSocket.send(JSON.stringify({
       type: MESSAGE_TYPE.mint,
       data

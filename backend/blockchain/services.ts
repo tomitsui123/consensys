@@ -22,16 +22,66 @@ const mintBlock = async (data: any) => {
 const createTransaction = async (
   user: string,
   action: BookingAction,
-  bookingSession: string
+  roomCode: string,
+  time: string
 ) => {
   p2pserver.chooseValidator({
     user,
-    bookingSession,
     action,
+    roomCode,
+    time,
   })
 }
 
-const getAvailableTimeslot = async () => {
+const getAvailableTimeslot = async (user: string) => {
+  let isSelectedTimeslot = blockchain.chain
+    .filter(
+      (e) =>
+        e.data.user === user && e.data.action === 'Add'
+    )
+    .pop()
+  const isSelectedByOthers = blockchain.chain.filter(
+    (e) =>
+      e.data.user !== user && e.data.action === 'Add'
+  )
+  let isSelectedData
+  let isSelectedByOthersData: {
+    isSelect?: boolean
+    isOccupy?: boolean
+    roomCode: string
+    time: string
+  }[] = []
+
+  if (isSelectedByOthers.length > 0) {
+    isSelectedByOthersData = isSelectedByOthers.reduce(
+      (
+        acc: {
+          isOccupy: boolean
+          roomCode: string
+          time: string
+        }[],
+        cur
+      ) => {
+        acc.push({
+          isOccupy: true,
+          roomCode: cur.data.roomCode,
+          time: cur.data.time,
+        })
+        return acc
+      },
+      []
+    )
+  }
+  if (isSelectedTimeslot) {
+    isSelectedData = {
+      isSelect: true,
+      roomCode: isSelectedTimeslot.data.roomCode,
+      time: isSelectedTimeslot.data.time,
+    }
+    isSelectedByOthersData.push(isSelectedData)
+  }
+  console.log(isSelectedData, isSelectedByOthersData)
+
   const data = [
     {
       isSelect: true,
@@ -44,7 +94,7 @@ const getAvailableTimeslot = async () => {
       time: '5',
     },
   ]
-  return new HttpResponse([])
+  return new HttpResponse(isSelectedByOthersData)
 }
 
 export {

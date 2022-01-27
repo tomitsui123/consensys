@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import HttpResponse from '../helpers/HttpResponse'
 import { BookingAction } from './Block'
 import * as blockchainService from './services'
 
@@ -16,28 +17,40 @@ const createTransaction = async (
   const {
     user,
     action,
-    bookingSession,
+    roomCode,
+    time
   }: {
     user: string
     action: BookingAction
-    bookingSession: string
+    roomCode: string
+    time: string
   } = req.body
-  await blockchainService.createTransaction(
-    user,
-    action,
-    bookingSession
-  )
-  res.redirect('/blockchain/blocks')
+  try {
+    await blockchainService.createTransaction(
+      user,
+      action,
+      roomCode,
+      time
+    )
+  } catch (e) {
+    return new HttpResponse(e, 400)
+  }
+  return res.redirect(`/blockchain//available/${user}`)
+
 }
 
-const getAvailableTimeslot = async (req: Request, res: Response) => {
-  console.log('hihihi')
-  const response = await blockchainService.getAvailableTimeslot()
+const getAvailableTimeslot = async (
+  req: Request,
+  res: Response
+) => {
+  const { user } = req.params
+  const response =
+    await blockchainService.getAvailableTimeslot(user)
   return res.status(response.statusCode).json(response)
 }
 
 export {
   getBlocks,
   createTransaction,
-  getAvailableTimeslot
+  getAvailableTimeslot,
 }

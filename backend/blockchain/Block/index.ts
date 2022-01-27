@@ -3,12 +3,20 @@ import { DIFFICULTY, MINE_RATE } from '../config'
 const SHA256 = require('crypto-js/sha256')
 const dayjs = require('dayjs')
 
-export type BookingAction = 'Add' | 'Delete'
+export type BookingAction = 'Add' | 'Delete' | ''
+export interface AvailableData {
+  isSelect?: boolean
+  isOccupy?: boolean
+  roomCode: string
+  time: string
+  user: string
+  action: BookingAction
+}
 export class Block {
   timestamp: number | string
   lastHash: string
   hash: string
-  data: any
+  data: AvailableData
   constructor(
     timestamp: number | string,
     lastHash: string,
@@ -22,12 +30,7 @@ export class Block {
   }
 
   static genesis(): Block {
-    return new this(
-      'time',
-      '----',
-      'genesis-hash',
-      []
-    )
+    return new this('time', '----', 'genesis-hash', [])
   }
 
   static blockHash(block: Block): string {

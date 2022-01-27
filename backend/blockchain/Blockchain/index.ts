@@ -1,4 +1,4 @@
-import { Block } from '../Block'
+import { Block, BookingAction } from '../Block'
 export class Blockchain {
   chain: Block[]
   constructor() {
@@ -6,26 +6,45 @@ export class Blockchain {
   }
 
   addBlock(data: any): Block {
-    // TODO: validate block
     const block = Block.mintBlock(
       this.chain[this.chain.length - 1],
       data
     )
-    this.chain.push(block)
+    if (this.isValidBlock(block)) {
+      this.chain.push(block)
+    }
     return block
   }
 
-  validateBlock() {
-    
+  isValidBlock(block: Block): boolean {
+    console.log(block)
+    const selectedBlockList = this.chain.filter(
+      (b: Block) => {
+        // console.log(b, block)
+        return (
+          b.data.roomCode === block.data.roomCode &&
+          b.data.time === block.data.time &&
+          b.data.user === block.data.user
+        )
+      }
+    )
+    const latestBlock = selectedBlockList.pop()
+    if (
+      !latestBlock ||
+      latestBlock.data.action === 'Delete'
+    ) {
+      return block.data.action === 'Add'
+    } else if (latestBlock.data.action === 'Add') {
+      return block.data.action === 'Delete'
+    }
+    return false
   }
 
   isValidChain(chain: Block[]): boolean {
-    console.log('0')
     if (
       JSON.stringify(chain[0]) !==
       JSON.stringify(Block.genesis())
     ) {
-      console.log('1')
       return false
     }
 
@@ -36,12 +55,10 @@ export class Blockchain {
         block.lastHash !== lastBlock.hash ||
         block.hash !== Block.blockHash(block)
       ) {
-        console.log('2')
         return false
       }
     }
 
-    console.log('3')
     return true
   }
 
