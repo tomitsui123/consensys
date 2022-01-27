@@ -24,7 +24,7 @@ export default function BookButton({
   const auth = useAuth()
 
   const cancelReservation = async () => {
-    const data = await axios.post<AvailableData[]>(
+    const { data } = await axios.post(
       '/blockchain/transact',
       {
         action: 'Delete',
